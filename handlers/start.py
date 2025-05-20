@@ -12,3 +12,4 @@ async def cmd_start(message: types.Message, state: FSMContext):
         "Привет! Что вы хотите сделать?",
         reply_markup=main_menu_inline,
     )
+    await state.clear()

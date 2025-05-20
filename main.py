@@ -4,8 +4,6 @@ import asyncio
 from aiogram import F, Bot, Dispatcher
 from handlers import register_all_handlers
 
-
-
 bot = Bot(token=config.bot_token.get_secret_value())
 dp = Dispatcher()
 
@@ -18,4 +16,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
+    print('Running')
     asyncio.run(main())
