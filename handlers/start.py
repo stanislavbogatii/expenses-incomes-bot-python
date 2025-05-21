@@ -9,7 +9,7 @@ router = Router()
 @router.message(Command(commands=['start']))
 async def cmd_start(message: types.Message, state: FSMContext):
     await message.answer(
-        "Привет! Что вы хотите сделать?",
+        "Hi, select options:",
         reply_markup=main_menu_inline,
     )
     await state.clear()
