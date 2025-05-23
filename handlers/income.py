@@ -3,7 +3,7 @@ from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters.command import Command, CommandObject
 from form import Form
-from keyboards import main_menu
+from keyboards import get_main_menu
 from repositories import UserRepository, TransactionRepository
 from utils import get_or_create_user
 from models import TransactionModel, UserModel
@@ -29,7 +29,7 @@ async def cmd_add_income(message: types.Message, command: CommandObject, state: 
             )
             await transaction_repository.store(transaction=transaction)
             await state.clear()
-            await message.answer("Income saved!", reply_markup=main_menu)
+            await message.answer("Income saved!", reply_markup=get_main_menu())
             return
             
     await state.set_state(Form.waiting_for_income)
@@ -86,5 +86,5 @@ async def cmd_waiting_for_income(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer(
         "Income saved!",
-        reply_markup=main_menu
+        reply_markup=get_main_menu()
     )

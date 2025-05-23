@@ -5,10 +5,9 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from utils import get_or_create_user
 from datetime import datetime, timedelta
-from keyboards import main_menu
 from models import UserModel
 from enums import TransactionType
-from keyboards import statistic_options_inline, back_to_stats_inline
+from keyboards import get_statistic_options_inline, get_back_to_stats_inline, get_main_menu
 from dateutil.relativedelta import relativedelta
 
 
@@ -38,8 +37,10 @@ async def cmd_get_statistic(message: Message, command: CommandObject, state: FSM
     username = message.from_user.username
     user: UserModel = await get_or_create_user(username=username, user_id=id)
 
-    now = datetime.today()
-    start_date = now - timedelta(days=int(days))
+    now = datetime.now()
+    start_date = now - relativedelta(days=int(days))
+
+
     transactions = await transaction_repository.find_all_by_interval(user_id=user.id, start_date=start_date, end_date=now)
 
     income_sum = sum(t.amount for t in transactions if t.type == TransactionType.INCOME)
@@ -51,7 +52,7 @@ async def cmd_get_statistic(message: Message, command: CommandObject, state: FSM
         f"Expense: {expense_sum} mdl\n" \
         f"Income: {income_sum} mdl\n\n" \
         f"Profit: {profit} mdl {'😔' if profit < 0 else '👍'}",
-        reply_markup=main_menu,
+        reply_markup=get_main_menu(),
     )
 
 @router.callback_query(F.data == 'show_stats')
@@ -63,7 +64,7 @@ async def cmd_add_expense(callback: CallbackQuery, state: FSMContext):
         
     await callback.message.edit_text(
         "Select interval for stats:",
-        reply_markup=statistic_options_inline
+        reply_markup=get_statistic_options_inline()
     )
     await callback.answer()
 
@@ -73,8 +74,8 @@ async def process_period(callback: CallbackQuery):
     period = callback.data.replace('stats_period_', '')
     stats_period = stats_period_days[period]
 
-    id = message.from_user.id
-    username = message.from_user.username
+    id = callback.from_user.id
+    username = callback.from_user.username
     user: UserModel = await get_or_create_user(username=username, user_id=id)
 
     now = datetime.now()
@@ -84,20 +85,17 @@ async def process_period(callback: CallbackQuery):
     else:
         start_date = now - stats_period
     transactions = await transaction_repository.find_all_by_interval(user_id=user.id, start_date=start_date, end_date=now)
-
     income_sum = sum(t.amount for t in transactions if t.type == TransactionType.INCOME)
     expense_sum = sum(t.amount for t in transactions if t.type == TransactionType.EXPENSE)
     profit = income_sum - expense_sum
 
-    print("Start date:", start_date)
-    print("End date:", now)
 
     await callback.message.edit_text(
         f"{period} statistic: \n\n" \
         f"Expense: {expense_sum} mdl\n" \
         f"Income: {income_sum} mdl\n\n" \
         f"Profit: {profit} mdl {'😔' if profit < 0 else '👍'}",
-        reply_markup=back_to_stats_inline
+        reply_markup=get_back_to_stats_inline()
     )
     await callback.answer()
 

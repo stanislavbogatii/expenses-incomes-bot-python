@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters.command import Command, CommandObject
 from form import Form
 from models import UserModel
-from keyboards import main_menu
+from keyboards import get_main_menu
 from repositories import UserRepository, TransactionRepository
 from utils import get_or_create_user
 
@@ -44,7 +44,7 @@ async def cmd_get_transactions(message: types.Message, command: CommandObject, s
 
     await message.answer(
         text,
-        reply_markup=main_menu,
+        reply_markup=get_main_menu(),
     )
     await state.clear()
 

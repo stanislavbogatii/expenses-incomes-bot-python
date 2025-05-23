@@ -31,6 +31,7 @@ class TransactionRepository:
             },
             "user_id": user_id
         }).to_list(length=None)
+        
         transactions = [
             TransactionModel(**{**data})
             for data in data_list

@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters.command import Command, CommandObject
 from enums import TransactionType
 from form import Form
-from keyboards import main_menu_inline, main_menu
+from keyboards import get_main_menu
 from models.Transaction import TransactionModel
 from models.User import UserModel
 from utils import get_or_create_user
@@ -29,7 +29,7 @@ async def cmd_add_expense(message: types.Message, command: CommandObject, state:
             )
             await transaction_repository.store(transaction=transaction)
             await state.clear()
-            await message.answer("Expense saved!", reply_markup=main_menu)
+            await message.answer("Expense saved!", reply_markup=get_main_menu())
             return
         
     await state.set_state(Form.waiting_for_expense)
@@ -80,4 +80,4 @@ async def cmd_waiting_for_expense(message: types.Message, state: FSMContext):
         )
     await transaction_repository.store(transaction=transaction)
     await state.clear()
-    await message.answer("Expense saved!", reply_markup=main_menu)
+    await message.answer("Expense saved!", reply_markup=get_main_menu())
