@@ -3,7 +3,7 @@ from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters.command import Command, CommandObject
 from form import Form
-from keyboards import get_main_menu
+from keyboards import get_back_to_menu_inline
 from repositories import UserRepository, TransactionRepository
 from utils import get_or_create_user
 from models import TransactionModel, UserModel
@@ -60,6 +60,7 @@ async def cmd_add_income_callback(callback: types.CallbackQuery, state: FSMConte
     await state.set_state(Form.waiting_for_income)
     await callback.message.answer(
         "Input income",
+
     )
     await callback.answer()
 
@@ -86,5 +87,5 @@ async def cmd_waiting_for_income(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer(
         "Income saved!",
-        reply_markup=get_main_menu()
+        reply_markup=get_back_to_menu_inline()
     )

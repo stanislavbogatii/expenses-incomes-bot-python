@@ -11,7 +11,7 @@ class TransactionModel(BaseModel):
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     type: TransactionType
     user_id: PyObjectId
-    category: Optional[str]
+    category: Optional[str] = None
     amount: float
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

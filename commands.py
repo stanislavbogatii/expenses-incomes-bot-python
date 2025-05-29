@@ -3,6 +3,7 @@ from aiogram.types import BotCommand
 def get_main_commands()->list[BotCommand]:
     main_commands = [
         BotCommand(command="/start", description="Start bot"),
+        BotCommand(command="/menu", description="Menu"),
         BotCommand(command="/transactions", description="Transaction"),
         BotCommand(command="/statistic", description="Statistic"),
         BotCommand(command="/help", description="Help"),
