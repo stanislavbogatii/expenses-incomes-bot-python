@@ -16,8 +16,6 @@ def get_main_menu_inline()->InlineKeyboardMarkup:
     )
     return main_menu_inline
 
-
-
 def get_back_to_stats_inline()->InlineKeyboardMarkup:
     back_to_stats_inline = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -97,6 +95,17 @@ def get_category_types_inline()->InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(text='Income', callback_data='show_categories_income'),
                 InlineKeyboardButton(text='Expense', callback_data='show_categories_expense')
+            ]
+        ]
+    )
+    return markup
+
+def get_category_types_create_inline()->InlineKeyboardMarkup:
+    markup = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text='Income', callback_data='create_category_income'),
+                InlineKeyboardButton(text='Expense', callback_data='create_category_expense')
             ]
         ]
     )

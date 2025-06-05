@@ -8,14 +8,16 @@ from aiogram.filters.command import Command, CommandObject
 from form import Form
 from models import UserModel
 from keyboards import get_main_menu, get_transacion_options_inline, get_back_to_transactions_inline
-from repositories import UserRepository, TransactionRepository
+from repositories import UserRepository, TransactionRepository, CategoryRepository
 from utils import get_or_create_user
 from dateutil.relativedelta import relativedelta
+from enums import CategoryType
 
 user_repository = UserRepository()
 transaction_repository = TransactionRepository()
 
 router = Router()
+category_repository = CategoryRepository()
 
 transactions_period_days = {
     "day": relativedelta(days=1),
@@ -70,7 +72,7 @@ async def cmd_waiting_for_income(message: Message, state: FSMContext):
     for transaction in transactions:
         text = (
             f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            f"{transaction.type.value}: {transaction.amount:.2f} mdl"
+            f"{transaction.type.value}: {transaction.amount:.2f} mdl ({transaction.category})"
         )
         lines.append(text)
 
@@ -111,7 +113,7 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
     for transaction in transactions:
         text = (
             f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            f"{transaction.type.value}: {transaction.amount:.2f} mdl"
+            f"{transaction.type.value}: {transaction.amount:.2f} mdl ({transaction.category})"
         )
         lines.append(text)
 
@@ -130,7 +132,6 @@ async def cmd_add_expense(callback: CallbackQuery, state: FSMContext):
     id = message.from_user.id
     username = message.from_user.username
     await get_or_create_user(username=username, user_id=id)
-        
     await callback.message.edit_text(
         "Select interval for transactions:",
         reply_markup=get_transacion_options_inline()
