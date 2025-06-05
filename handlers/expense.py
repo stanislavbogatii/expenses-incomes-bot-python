@@ -22,17 +22,9 @@ async def cmd_add_expense(message: types.Message, command: CommandObject, state:
     username = message.from_user.username
     user: UserModel = await get_or_create_user(username=username, user_id=id)
 
-    categories = category_repository.find_all_by_type('expense')
-    
-    buttons = [
-        [InlineKeyboardButton(text=category, callback_data=f"add_expense_category:{category}")]
-        for category in categories
-    ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-
     await message.answer(
         "Select expense category",
-        reply_markup=keyboard
+        reply_markup=get_expense_categories_inline()
     )
 
 @router.callback_query(F.data.startswith("add_expense_category:"))
@@ -49,18 +41,10 @@ async def cmd_add_expense(message: types.Message, state: FSMContext):
     id = message.from_user.id
     username = message.from_user.username
     await get_or_create_user(username=username, user_id=id)
-        
-    categories = category_repository.find_all_by_type('expense')
-    
-    buttons = [
-        [InlineKeyboardButton(text=category, callback_data=f"add_expense_category:{category}")]
-        for category in categories
-    ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
     await message.answer(
         "Select expense category",
-        reply_markup=keyboard
+        reply_markup=get_expense_categories_inline()
     )
 
 @router.callback_query(F.data == 'add_expense' or F.data == 'expense')
@@ -69,18 +53,10 @@ async def cmd_add_expense(callback: types.CallbackQuery, state: FSMContext):
     id = message.from_user.id
     username = message.from_user.username
     await get_or_create_user(username=username, user_id=id)
-        
-    categories = category_repository.find_all_by_type('expense')
-    
-    buttons = [
-        [InlineKeyboardButton(text=category, callback_data=f"add_expense_category:{category}")]
-        for category in categories
-    ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
     await callback.message.edit_text(
         "Select expense category",
-        reply_markup=keyboard
+        reply_markup=get_expense_categories_inline()
     )
 
 @router.message(Form.waiting_for_expense)
@@ -113,4 +89,25 @@ async def cmd_waiting_for_expense(message: types.Message, state: FSMContext):
     await message.answer(
         f"Expense saved in category {category_name}", 
         reply_markup=get_back_to_menu_inline()
-)
+    )
+
+def get_expense_categories_inline():
+    categories = category_repository.find_all_by_type('expense')
+    buttons = [
+        [
+            InlineKeyboardButton(text=categories[i], callback_data=f"add_expense_category:{categories[i]}"),
+            InlineKeyboardButton(text=categories[i + 1], callback_data=f"add_expense_category:{categories[i + 1]}")
+        ]
+        for i in range(0, len(categories) - 1, 2)
+    ]
+    if len(categories) % 2 != 0:
+        buttons.append([
+            InlineKeyboardButton(text=categories[-1], callback_data=f"add_expense_category:{categories[-1]}")
+        ])
+    buttons.append([
+        InlineKeyboardButton(text='<< MENU', callback_data='menu')
+    ])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    return keyboard
+    
+

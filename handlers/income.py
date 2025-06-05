@@ -23,17 +23,9 @@ async def cmd_add_income(message: types.Message, command: CommandObject, state: 
     username = message.from_user.username
     user: UserModel = await get_or_create_user(username=username, user_id=id)
     
-    categories = category_repository.find_all_by_type('income')
-    
-    buttons = [
-        [InlineKeyboardButton(text=category, callback_data=f"add_income_category:{category}")]
-        for category in categories
-    ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-
     await message.answer(
         "Select income category",
-        reply_markup=keyboard
+        reply_markup=get_income_categories_inline()
     )
 
 @router.callback_query(F.data.startswith("add_income_category:"))
@@ -44,25 +36,15 @@ async def handle_category_click(callback: types.CallbackQuery, state: FSMContext
     await state.set_state(Form.waiting_for_income)
     await callback.answer()
 
-
-
 @router.message(lambda message: message.text == "Add income")
 async def cmd_add_income(message: types.Message, state: FSMContext):
     id = message.from_user.id
     username = message.from_user.username
     await get_or_create_user(username=username, user_id=id)
-            
-    categories = category_repository.find_all_by_type('income')
-    
-    buttons = [
-        [InlineKeyboardButton(text=category, callback_data=f"add_income_category:{category}")]
-        for category in categories
-    ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
     await message.answer(
         "Select income category",
-        reply_markup=keyboard
+        reply_markup=get_income_categories_inline()
     )
 
 
@@ -73,17 +55,9 @@ async def cmd_add_income_callback(callback: types.CallbackQuery, state: FSMConte
     username = message.from_user.username
     await get_or_create_user(username=username, user_id=id)
 
-    categories = category_repository.find_all_by_type('income')
-    
-    buttons = [
-        [InlineKeyboardButton(text=category, callback_data=f"add_income_category:{category}")]
-        for category in categories
-    ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-
     await callback.message.edit_text(
         "Select income category",
-        reply_markup=keyboard
+        reply_markup=get_income_categories_inline()
     )
 
 
@@ -117,3 +91,24 @@ async def cmd_waiting_for_income(message: types.Message, state: FSMContext):
         f"Income saved in category {category_name}", 
         reply_markup=get_back_to_menu_inline()
     )
+
+
+
+def get_income_categories_inline():
+    categories = category_repository.find_all_by_type('income')
+    buttons = [
+        [
+            InlineKeyboardButton(text=categories[i], callback_data=f"add_income_category:{categories[i]}"),
+            InlineKeyboardButton(text=categories[i + 1], callback_data=f"add_income_category:{categories[i + 1]}")
+        ]
+        for i in range(0, len(categories) - 1, 2)
+    ]
+    if len(categories) % 2 != 0:
+        buttons.append([
+            InlineKeyboardButton(text=categories[-1], callback_data=f"add_income_category:{categories[-1]}")
+        ])
+    buttons.append([
+        InlineKeyboardButton(text='<< MENU', callback_data='menu')
+    ])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    return keyboard

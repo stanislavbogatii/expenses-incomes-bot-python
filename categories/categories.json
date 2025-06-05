@@ -1,4 +1,4 @@
 {
-    "income": ["first cateogry"],
-    "expense": ["second"]
+    "income": ["salary", "other"],
+    "expense": ["eat", "car", "distraction", "health", "sport", "other"]
 }
