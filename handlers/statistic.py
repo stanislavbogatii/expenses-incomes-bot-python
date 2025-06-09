@@ -10,6 +10,7 @@ from models import UserModel
 from enums import TransactionType
 from keyboards import get_statistic_options_inline, get_back_to_stats_inline, get_main_menu
 from dateutil.relativedelta import relativedelta
+from collections import defaultdict
 
 
 transaction_repository = TransactionRepository()
@@ -74,22 +75,48 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
     else:
         start_date = now - stats_period
     transactions = await transaction_repository.find_all_by_interval(user_id=user.id, start_date=start_date, end_date=now)
-    income_sum = sum(t.amount for t in transactions if t.type == TransactionType.INCOME)
-    expense_sum = sum(t.amount for t in transactions if t.type == TransactionType.EXPENSE)
+    
+    
+    lines = ['Transactions:']
+    income_categories = defaultdict(float)
+    expense_categories = defaultdict(float)
+
+    for transaction in transactions:
+        text = (
+            f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
+            f"{transaction.type.value}: {transaction.amount:.2f} mdl\n"
+            f"Category: {transaction.category}"
+        )
+        lines.append(text)
+
+        if transaction.type == TransactionType.INCOME:
+            income_categories[transaction.category] += transaction.amount
+        elif transaction.type == TransactionType.EXPENSE:
+            expense_categories[transaction.category] += transaction.amount
+
+    text = '\n\n'.join(lines)
+
+    income_sum = sum(income_categories.values())
+    expense_sum = sum(expense_categories.values())
     profit = income_sum - expense_sum
 
+    income_lines = ['\n\n📈 Income by category: \n']
+    for category, amount in income_categories.items():
+        income_lines.append(f"• {category}: {amount:.2f} mdl \n")
 
-    await callback.message.edit_text(
-        f"{period} statistic: \n\n" \
-        f"Expense: {expense_sum} mdl\n" \
-        f"Income: {income_sum} mdl\n\n" \
-        f"Profit: {profit} mdl {'😔' if profit < 0 else '👍'}",
+    expense_lines = ['\n\n📉 Expense by category: \n']
+    for category, amount in expense_categories.items():
+        expense_lines.append(f"• {category}: {amount:.2f} mdl \n")
+
+    await message.edit_text(
+        f"{start_date.strftime('%d.%m.%Y %H:%M')} - {now.strftime('%d.%m.%Y %H:%M')} statistic:\n\n"
+        f"➖ Expense: {expense_sum:.2f} mdl\n"
+        f"➕ Income: {income_sum:.2f} mdl\n\n"
+        f"📊 Profit: {profit:.2f} mdl {'😔' if profit < 0 else '👍'}"
+        + ''.join(income_lines)
+        + ''.join(expense_lines),
         reply_markup=get_back_to_stats_inline()
     )
-    await callback.answer()
-
-
-
 
 
 @router.message(Form.waiting_for_custom_stats_period)
@@ -121,23 +148,42 @@ async def cmd_waiting_for_income(message: Message, state: FSMContext):
     transactions = await transaction_repository.find_all_by_interval(user_id=user.id, start_date=start_date, end_date=end_date)
 
     lines = ['Transactions:']
+    income_categories = defaultdict(float)
+    expense_categories = defaultdict(float)
+
     for transaction in transactions:
         text = (
             f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            f"{transaction.type.value}: {transaction.amount:.2f} mdl"
+            f"{transaction.type.value}: {transaction.amount:.2f} mdl\n"
+            f"Category: {transaction.category}"
         )
         lines.append(text)
 
+        if transaction.type == TransactionType.INCOME:
+            income_categories[transaction.category] += transaction.amount
+        elif transaction.type == TransactionType.EXPENSE:
+            expense_categories[transaction.category] += transaction.amount
+
     text = '\n\n'.join(lines)
 
-    income_sum = sum(t.amount for t in transactions if t.type == TransactionType.INCOME)
-    expense_sum = sum(t.amount for t in transactions if t.type == TransactionType.EXPENSE)
+    income_sum = sum(income_categories.values())
+    expense_sum = sum(expense_categories.values())
     profit = income_sum - expense_sum
 
-    await message.answer(
-        f"{start_date} - {end_date} statistic: \n\n" \
-        f"Expense: {expense_sum} mdl\n" \
-        f"Income: {income_sum} mdl\n\n" \
-        f"Profit: {profit} mdl {'😔' if profit < 0 else '👍'}",
+    income_lines = ['\n\n📈 Income by category: \n']
+    for category, amount in income_categories.items():
+        income_lines.append(f"• {category}: {amount:.2f} mdl \n")
+
+    expense_lines = ['\n\n📉 Expense by category: \n']
+    for category, amount in expense_categories.items():
+        expense_lines.append(f"• {category}: {amount:.2f} mdl \n")
+
+    await message.edit_text(
+        f"{start_date.strftime('%d.%m.%Y %H:%M')} - {end_date.strftime('%d.%m.%Y %H:%M')} statistic:\n\n"
+        f"➖ Expense: {expense_sum:.2f} mdl\n"
+        f"➕ Income: {income_sum:.2f} mdl\n\n"
+        f"📊 Profit: {profit:.2f} mdl {'😔' if profit < 0 else '👍'}"
+        + ''.join(income_lines)
+        + ''.join(expense_lines),
         reply_markup=get_back_to_stats_inline()
     )

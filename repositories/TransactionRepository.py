@@ -3,15 +3,20 @@ from models import TransactionModel
 from typing import List
 from models import PyObjectId
 from datetime import datetime
+from models.PyObjectId import PyObjectId
 
 class TransactionRepository:
     def __init__(self):
         self.transactions = db['transactions']
 
     async def find_one_by_id(self, id: str) -> TransactionModel | None:
-        transaction = await self.transactions.find_one({"id": id})
+        transaction = await self.transactions.find_one({"_id": PyObjectId(id)})
         if transaction:
             return TransactionModel(**transaction)
+        return None
+    
+    async def delete_one_by_id(self, id: str):
+        await self.transactions.delete_one({"_id": PyObjectId(id)})
         return None
     
     async def find_all_by_user_id(self, user_id: PyObjectId) -> List[TransactionModel]:

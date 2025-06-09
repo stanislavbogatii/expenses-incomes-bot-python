@@ -1,4 +1,46 @@
 {
-    "income": ["salary", "other"],
-    "expense": ["eat", "car", "distraction", "health", "sport", "other"]
+  "income": [
+    "Salary",
+    "Bonus",
+    "Freelance / Consulting",
+    "Interest Income",
+    "Dividends",
+    "Rental Income",
+    "Business Income",
+    "Capital Gains",
+    "Refunds / Rebates",
+    "Cash Gifts",
+    "Tax Refund",
+    "Pension",
+    "Social Security",
+    "Grants / Scholarships",
+    "Alimony Received",
+    "Child Support Received",
+    "Royalties",
+    "Selling Used Items",
+    "Side Hustle",
+    "Commission"
+  ],
+  "expense": [
+    "Rent",
+    "Groceries",
+    "Utilities",
+    "Fuel",
+    "Car Insurance",
+    "Public Transportation",
+    "Restaurants",
+    "Medical Expenses",
+    "Clothing",
+    "Personal Care",
+    "Phone / Internet",
+    "Subscriptions",
+    "Entertainment",
+    "Travel",
+    "Loan Payments",
+    "Credit Card Payments",
+    "Childcare",
+    "Gifts",
+    "Pet Expenses",
+    "Charity / Donations"
+  ]
 }

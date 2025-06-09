@@ -11,6 +11,7 @@ from keyboards import get_main_menu, get_transacion_options_inline, get_back_to_
 from repositories import UserRepository, TransactionRepository, CategoryRepository
 from utils import get_or_create_user
 from dateutil.relativedelta import relativedelta
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from enums import CategoryType
 
 user_repository = UserRepository()
@@ -30,6 +31,7 @@ transactions_period_days = {
     "custom": None,
 }
 
+
 @router.message(Command(commands=['transactions']))
 async def cmd_get_transactions(message: Message, command: CommandObject, state: FSMContext):
     await state.clear()
@@ -37,8 +39,6 @@ async def cmd_get_transactions(message: Message, command: CommandObject, state: 
         "Select interval for transactions:",
         reply_markup=get_transacion_options_inline()
     )
-
-
 
 @router.message(Form.waiting_for_custom_transactions_period)
 async def cmd_waiting_for_income(message: Message, state: FSMContext):
@@ -86,7 +86,6 @@ async def cmd_waiting_for_income(message: Message, state: FSMContext):
 
 @router.callback_query(F.data.startswith('transactions_period_'))
 async def process_period(callback: CallbackQuery, state: FSMContext):
-    message = callback.message
     period = callback.data.replace('transactions_period_', '')
     if (period == 'custom'):
         await state.set_state(Form.waiting_for_custom_transactions_period)
@@ -95,7 +94,7 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
         )
         await callback.answer()
         return
-    stats_period = transactions_period_days[period]
+    transactions_period = transactions_period_days[period]
 
     id = callback.from_user.id
     username = callback.from_user.username
@@ -103,25 +102,29 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
 
     now = datetime.now()
 
-    if stats_period is None:
+    if transactions_period is None:
         start_date = datetime.min 
     else:
-        start_date = now - stats_period
+        start_date = now - transactions_period
     transactions = await transaction_repository.find_all_by_interval(user_id=user.id, start_date=start_date, end_date=now)
 
-    lines = ['Transactions:']
-    for transaction in transactions:
-        text = (
-            f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            f"{transaction.type.value}: {transaction.amount:.2f} mdl ({transaction.category})"
-        )
-        lines.append(text)
+    buttons = [
+        [
+            InlineKeyboardButton(text=(
+            f"{transactions[i].type.value} {transactions[i].created_at.strftime('%d.%m.%Y')} {transactions[i].amount:.2f} mdl ({transactions[i].category})"
+            ), callback_data=f"open_transaction_{transactions[i].id}")
+        ]
+        for i in range(0, len(transactions))
+    ]
 
-    text = '\n\n'.join(lines)
+    buttons.append([
+        InlineKeyboardButton(text='<< BACK', callback_data='show_transactions')
+    ])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
     await callback.message.edit_text(
-        text,
-        reply_markup=get_back_to_transactions_inline()
+        "Transactions:",
+        reply_markup=keyboard
     )
     await callback.answer()
 
