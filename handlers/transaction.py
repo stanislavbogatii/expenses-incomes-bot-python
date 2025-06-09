@@ -56,7 +56,7 @@ async def confirm_delete_transaction(callback: CallbackQuery, state: FSMContext)
         f"Transaction success deleted!",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text='<< BACK', callback_data='show_transactions')]
+                [InlineKeyboardButton(text='<< TRANSACTIONS MENU', callback_data='show_transactions')]
             ]
         )
     )
