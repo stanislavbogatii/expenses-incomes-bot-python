@@ -72,7 +72,7 @@ async def cmd_waiting_for_income(message: Message, state: FSMContext):
     for transaction in transactions:
         text = (
             f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            f"{transaction.type.value}: {transaction.amount:.2f} mdl ({transaction.category})"
+            f"{transaction.type.value}: {transaction.amount:.2f} mdl ({category_repository.get_category_label(transaction.type.value, transaction.category)})"
         )
         lines.append(text)
 
@@ -111,7 +111,7 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
     buttons = [
         [
             InlineKeyboardButton(text=(
-            f"{transactions[i].type.value} {transactions[i].created_at.strftime('%d.%m.%Y')} {transactions[i].amount:.2f} mdl ({transactions[i].category})"
+            f"{transactions[i].type.value} {transactions[i].created_at.strftime('%d.%m.%Y')} {transactions[i].amount:.2f} mdl ({category_repository.get_category_label(transactions[i].type.value, transactions[i].category)})"
             ), callback_data=f"open_transaction_{transactions[i].id}")
         ]
         for i in range(0, len(transactions))

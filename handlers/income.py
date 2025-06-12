@@ -73,6 +73,7 @@ async def cmd_waiting_for_income(message: types.Message, state: FSMContext):
     user: UserModel = await get_or_create_user(username=username, user_id=id)
     data = await state.get_data()
     category_name = data.get("category")
+    category_label = category_repository.get_category_label('income', category_name)
     if not category_name:
         await message.answer(
             "Error! category not set", 
@@ -88,7 +89,7 @@ async def cmd_waiting_for_income(message: types.Message, state: FSMContext):
     await transaction_repository.store(transaction=transaction)
     await state.clear()
     await message.answer(
-        f"Income saved in category {category_name}", 
+        f"Income saved in category {category_label}", 
         reply_markup=get_back_to_menu_inline()
     )
 
@@ -98,14 +99,14 @@ def get_income_categories_inline():
     categories = category_repository.find_all_by_type('income')
     buttons = [
         [
-            InlineKeyboardButton(text=categories[i], callback_data=f"add_income_category:{categories[i]}"),
-            InlineKeyboardButton(text=categories[i + 1], callback_data=f"add_income_category:{categories[i + 1]}")
+            InlineKeyboardButton(text=categories[i]['label'], callback_data=f"add_income_category:{categories[i]['value']}"),
+            InlineKeyboardButton(text=categories[i + 1]['label'], callback_data=f"add_income_category:{categories[i + 1]['value']}")
         ]
         for i in range(0, len(categories) - 1, 2)
     ]
     if len(categories) % 2 != 0:
         buttons.append([
-            InlineKeyboardButton(text=categories[-1], callback_data=f"add_income_category:{categories[-1]}")
+            InlineKeyboardButton(text=categories[-1]['label'], callback_data=f"add_income_category:{categories[-1]['value']}")
         ])
     buttons.append([
         InlineKeyboardButton(text='<< MENU', callback_data='menu')

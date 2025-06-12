@@ -1,5 +1,5 @@
 from form import Form
-from repositories import TransactionRepository
+from repositories import TransactionRepository, CategoryRepository
 from aiogram import F, Router
 from aiogram.filters.command import Command, CommandObject
 from aiogram.types import Message, CallbackQuery
@@ -14,6 +14,7 @@ from collections import defaultdict
 
 
 transaction_repository = TransactionRepository()
+category_repository = CategoryRepository()
 router = Router()
 
 stats_period_days = {
@@ -102,11 +103,13 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
 
     income_lines = ['\n\n📈 Income by category: \n']
     for category, amount in income_categories.items():
-        income_lines.append(f"• {category}: {amount:.2f} mdl \n")
+        category_label = category_repository.get_category_label('income', category)
+        income_lines.append(f"• {category_label}: {amount:.2f} mdl \n")
 
     expense_lines = ['\n\n📉 Expense by category: \n']
     for category, amount in expense_categories.items():
-        expense_lines.append(f"• {category}: {amount:.2f} mdl \n")
+        category_label = category_repository.get_category_label('expense', category)
+        expense_lines.append(f"• {category_label}: {amount:.2f} mdl \n")
 
     await message.edit_text(
         f"{start_date.strftime('%d.%m.%Y %H:%M')} - {now.strftime('%d.%m.%Y %H:%M')} statistic:\n\n"
@@ -120,7 +123,7 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(Form.waiting_for_custom_stats_period)
-async def cmd_waiting_for_income(message: Message, state: FSMContext):
+async def get_statistic_for_custom_period(message: Message, state: FSMContext):
     start_date_str, end_date_str = message.text.split()
     await state.clear()
     username = message.from_user.username
@@ -172,11 +175,13 @@ async def cmd_waiting_for_income(message: Message, state: FSMContext):
 
     income_lines = ['\n\n📈 Income by category: \n']
     for category, amount in income_categories.items():
-        income_lines.append(f"• {category}: {amount:.2f} mdl \n")
+        category_label = category_repository.get_category_label('income', category)
+        income_lines.append(f"• {category_label}: {amount:.2f} mdl \n")
 
     expense_lines = ['\n\n📉 Expense by category: \n']
     for category, amount in expense_categories.items():
-        expense_lines.append(f"• {category}: {amount:.2f} mdl \n")
+        category_label = category_repository.get_category_label('expense', category)
+        expense_lines.append(f"• {category_label}: {amount:.2f} mdl \n")
 
     await message.edit_text(
         f"{start_date.strftime('%d.%m.%Y %H:%M')} - {end_date.strftime('%d.%m.%Y %H:%M')} statistic:\n\n"
