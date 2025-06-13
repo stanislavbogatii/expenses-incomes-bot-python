@@ -12,6 +12,7 @@ def get_main_menu_inline()->InlineKeyboardMarkup:
 	        ],
             [InlineKeyboardButton(text='Show statistic', callback_data='show_stats')],
             [InlineKeyboardButton(text='Show transactoins', callback_data='show_transactions')],
+            [InlineKeyboardButton(text='Support', callback_data='support')],
         ]
     )
     return main_menu_inline
@@ -114,8 +115,9 @@ def get_category_types_create_inline()->InlineKeyboardMarkup:
 def get_support_inline()->InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text='Bug report', callback_data="support_bug_report")],   
-            [InlineKeyboardButton(text='🐙 Github', url='https://github.com/stanislavbogatii')]
+            [InlineKeyboardButton(text='🐞 Bug report', callback_data="support_bug_report")],   
+            [InlineKeyboardButton(text='🐙 Github', url='https://github.com/stanislavbogatii')],
+            [InlineKeyboardButton(text='<< MENU', callback_data='menu')]
         ]
     )
     return markup   

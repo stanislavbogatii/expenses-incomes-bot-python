@@ -22,6 +22,13 @@ async def cmd_support(message: Message, state: FSMContext):
         reply_markup=get_support_inline()
     )
 
+@router.callback_query(F.data == 'support')
+async def cmd_support(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_text(
+        "Select option:",
+        reply_markup=get_support_inline()
+    )
+
 @router.message(Command(commands=['reports']))
 @router.message(lambda message: message.text.lower() in ['reports'])
 async def cmd_show_reports(message: Message, state: FSMContext):
@@ -29,8 +36,15 @@ async def cmd_show_reports(message: Message, state: FSMContext):
     reports = await reports_repository.find_all()
     for report in reports:
         user = await user_repository.find_one_by_id(report.user_id)
+        report_time = report.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        text = (
+            "🐞 *New Bug Report Received!*\n\n"
+            f"👤 *User:* @{user.username or 'N/A'} (`{user.user_id}`)\n"
+            f"🕒 *Time:* {report_time}\n"
+            f"📝 *Message:*\n{message.text}"
+        )
         await message.answer(
-            f"{report.created_at.strftime('%Y-%m-%d')}\nUser: {user.username}\nMessage: {report.message}",
+            text,
             reply_markup=InlineKeyboardMarkup(
                 inline_keyboard=[
                     [InlineKeyboardButton(text='DELETE', callback_data=f'delete_report_{report.id}')]
@@ -42,26 +56,30 @@ async def cmd_show_reports(message: Message, state: FSMContext):
 async def cmd_delete_report(callback: CallbackQuery, state: FSMContext):
     id = callback.data.replace('delete_report_', '')
     await reports_repository.delete_one_by_id(id)
-    await callback.answer('Report deleted')
+    await callback.message.edit_text('Report deleted')
 
 
 @router.message(Command(commands=['bug_report']))
 @router.message(lambda message: message.text.lower() in ['bug_report'])
 async def cmd_bug_report(message: Message, state: FSMContext):
     await state.set_state(Form.waiting_for_write_bug_report)
-    await message.answer("Write bug report: ")
+    await message.answer("Write bug report (exit with /cancel): ")
 
 
 @router.callback_query(F.data == 'support_bug_report')
 async def cmd_write_bug_report(callback: CallbackQuery, state: FSMContext):
     await state.set_state(Form.waiting_for_write_bug_report)
-    await callback.message.answer("Write bug report:")
+    await callback.message.answer("Write bug report (exit with /cancel):")
     await callback.answer()
 
 
 @router.message(Form.waiting_for_write_bug_report)
 async def cmd_crate_bug_report(message: Message, state: FSMContext):
+    await state.clear()
     user = await get_or_create_user(message.from_user.username, message.from_user.id)
+    if message.text == "/cancel":
+        await message.answer("Canceled")
+        return
     report = ReportMessageModel(
         user_id=user.id,
         message=message.text
@@ -82,6 +100,5 @@ async def cmd_crate_bug_report(message: Message, state: FSMContext):
             text=admin_msg,
             parse_mode="Markdown"
         )
-        
-    await state.clear()
+
     await message.answer("Thank you for bug report, we will fix it soon")
