@@ -44,6 +44,7 @@
     { "label": "🧸 Childcare", "value": "Childcare" },
     { "label": "🎁 Gifts", "value": "Gifts" },
     { "label": "🐶 Pet Expenses", "value": "Pet Expenses" },
-    { "label": "❤️ Charity / Donations", "value": "Charity / Donations" }
+    { "label": "❤️ Charity / Donations", "value": "Charity / Donations" },
+    { "label": "👨‍👩‍👧‍👦 Family", "value": "Family" }
   ]
 }

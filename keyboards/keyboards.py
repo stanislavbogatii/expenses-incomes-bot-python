@@ -111,6 +111,14 @@ def get_category_types_create_inline()->InlineKeyboardMarkup:
     )
     return markup
 
+def get_support_inline()->InlineKeyboardMarkup:
+    markup = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text='Bug report', callback_data="support_bug_report")],   
+            [InlineKeyboardButton(text='🐙 Github', url='https://github.com/stanislavbogatii')]
+        ]
+    )
+    return markup   
 
 
 # simple keyboards

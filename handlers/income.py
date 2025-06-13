@@ -13,11 +13,11 @@ from enums import TransactionType
 user_repository = UserRepository()
 transaction_repository = TransactionRepository()
 category_repository = CategoryRepository()
-add_income_messages = ['add income', 'income']
+add_income_messages = ['add income', 'income', 'inc']
 
 router = Router()
 
-@router.message(Command(commands=['add_income', 'income']))
+@router.message(Command(commands=['add_income', 'income', 'inc']))
 @router.message(lambda message: message.text.lower() in add_income_messages)
 async def cmd_add_income(message: types.Message, state: FSMContext):
     id = message.from_user.id
@@ -46,7 +46,7 @@ async def cmd_add_income_callback(callback: types.CallbackQuery, state: FSMConte
 
     await callback.message.edit_text(
         "Select income category",
-        reply_markup=get_income_categories_inline()
+        reply_markup=get_income_categories_inline(),        
     )
 
 

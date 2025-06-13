@@ -28,8 +28,9 @@ stats_period_days = {
     "custom": None,
 }
 
-@router.message(Command(commands=['statistic']))
-async def cmd_get_statistic(message: Message, command: CommandObject, state: FSMContext):
+@router.message(Command(commands=['statistic', 'statistics', 'stat', 'stats']))
+@router.message(lambda message: message.text.lower() in ['statistic', 'statistics', 'stat', 'stats'])
+async def cmd_get_statistic(message: Message, state: FSMContext):
     await state.clear()
 
     await message.answer(
@@ -38,7 +39,7 @@ async def cmd_get_statistic(message: Message, command: CommandObject, state: FSM
     )
 
 @router.callback_query(F.data == 'show_stats')
-async def cmd_add_expense(callback: CallbackQuery, state: FSMContext):
+async def cmd_add_expense(callback: CallbackQuery):
     message = callback.message
     id = message.from_user.id
     username = message.from_user.username

@@ -1,9 +1,8 @@
 from db.mongo import db
 from models import TransactionModel
 from typing import List
-from models import PyObjectId
 from datetime import datetime
-from models.PyObjectId import PyObjectId
+from models import PyObjectId
 
 class TransactionRepository:
     def __init__(self):

@@ -1,3 +1,4 @@
 from .UserRepository import UserRepository
 from .TransactionRepository import TransactionRepository
 from .CategoryRepository import CategoryRepository
+from .ReportMessagesRepository import ReportMessagesRepository

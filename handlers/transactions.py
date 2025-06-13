@@ -131,7 +131,7 @@ def create_transactions_list(transactions: list [TransactionModel]) -> InlineKey
         if (prev_day != day): 
             buttons.append([InlineKeyboardButton(text=f"============{day}============", callback_data="empty")])
         prev_day = day
-        transactoin_emoji = transaction.type.value == TransactionType.INCOME.value and '➕' or '➖'
+        transactoin_emoji = transaction.type.value == TransactionType.INCOME.value and '🟢' or '🔴'
         buttons.append([
             InlineKeyboardButton(text=(
             f"{transactoin_emoji} {transaction.amount:.2f} mdl     |     {category_repository.get_category_label(transaction.type.value, transaction.category)}"

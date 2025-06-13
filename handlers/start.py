@@ -7,7 +7,8 @@ from utils import get_or_create_user
 
 router = Router()
 
-@router.message(Command(commands=['start', 'menu']))
+@router.message(Command(commands=['start', 'menu', 'home']))
+@router.message(lambda message: message.text.lower() in ['start', 'menu', 'home', 'cd ~', 'cd /'])
 async def cmd_start(message: types.Message, state: FSMContext):
     id = message.from_user.id
     username = message.from_user.username
