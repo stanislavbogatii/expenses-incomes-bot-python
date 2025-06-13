@@ -3,7 +3,7 @@ from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters.command import Command, CommandObject
 from form import Form
-from keyboards import get_back_to_menu_inline
+from keyboards.keyboards import get_back_to_menu_inline
 from repositories import UserRepository, TransactionRepository, CategoryRepository
 from utils import get_or_create_user
 from models import TransactionModel, UserModel
@@ -13,12 +13,13 @@ from enums import TransactionType
 user_repository = UserRepository()
 transaction_repository = TransactionRepository()
 category_repository = CategoryRepository()
-
+add_income_messages = ['add income', 'income']
 
 router = Router()
 
 @router.message(Command(commands=['add_income', 'income']))
-async def cmd_add_income(message: types.Message, command: CommandObject, state: FSMContext):
+@router.message(lambda message: message.text.lower() in add_income_messages)
+async def cmd_add_income(message: types.Message, state: FSMContext):
     id = message.from_user.id
     username = message.from_user.username
     user: UserModel = await get_or_create_user(username=username, user_id=id)
@@ -35,18 +36,6 @@ async def handle_category_click(callback: types.CallbackQuery, state: FSMContext
     await callback.message.answer(f"Input income:")
     await state.set_state(Form.waiting_for_income)
     await callback.answer()
-
-@router.message(lambda message: message.text == "Add income")
-async def cmd_add_income(message: types.Message, state: FSMContext):
-    id = message.from_user.id
-    username = message.from_user.username
-    await get_or_create_user(username=username, user_id=id)
-
-    await message.answer(
-        "Select income category",
-        reply_markup=get_income_categories_inline()
-    )
-
 
 @router.callback_query(F.data == 'add_income' or F.data == 'add_income')
 async def cmd_add_income_callback(callback: types.CallbackQuery, state: FSMContext):

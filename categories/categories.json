@@ -22,6 +22,7 @@
     { "label": "🧾 Commission", "value": "Commission" }
   ],
   "expense": [
+    { "label": "🍔 Fast Food", "value": "Fast Food" },
     { "label": "🏠 Rent", "value": "Rent" },
     { "label": "🚬 Smoking", "value": "Smoking" },
     { "label": "🛒 Groceries", "value": "Groceries" },

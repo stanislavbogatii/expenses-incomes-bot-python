@@ -8,7 +8,7 @@ from utils import get_or_create_user
 from datetime import datetime, timedelta
 from models import UserModel
 from enums import TransactionType
-from keyboards import get_statistic_options_inline, get_back_to_stats_inline, get_main_menu
+from keyboards.keyboards import get_statistic_options_inline, get_back_to_stats_inline, get_main_menu
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict
 

@@ -1,13 +1,12 @@
 from config import config
-from commands import get_main_commands, get_admin_commands
+from commands.commands import get_main_commands, get_admin_commands
 import asyncio
 from aiogram import F, Bot, Dispatcher
 from handlers import register_all_handlers
-from aiogram.types import BotCommandScopeDefault, BotCommandScopeChat
+from aiogram.types import BotCommandScopeChat
 
 bot = Bot(token=config.bot_token.get_secret_value())
 dp = Dispatcher()
-
 
 async def set_commands(bot: Bot):
     await bot.set_my_commands(get_main_commands())
@@ -20,5 +19,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    print('Running')
+    print('Application started...')
     asyncio.run(main())

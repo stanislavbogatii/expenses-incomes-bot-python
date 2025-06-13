@@ -1,25 +1,14 @@
-
-from datetime import datetime, timedelta
-
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
-from aiogram.fsm.context import FSMContext
-from aiogram.filters.command import Command, CommandObject
-from form import Form
-from models import UserModel
-from keyboards import get_main_menu, get_transacion_options_inline, get_back_to_transactions_inline
-from repositories import UserRepository, TransactionRepository, CategoryRepository
-from utils import get_or_create_user
-from dateutil.relativedelta import relativedelta
+from aiogram.types import CallbackQuery
+from repositories import TransactionRepository
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from enums import CategoryType
 
 
 router = Router()
 transaction_repository = TransactionRepository()
 
 @router.callback_query(F.data.startswith('open_transaction_'))
-async def open_transaction(callback: CallbackQuery, state: FSMContext):
+async def open_transaction(callback: CallbackQuery):
     id = callback.data.replace('open_transaction_', '')
     transaction = await transaction_repository.find_one_by_id(id)
     await callback.message.edit_text(
@@ -34,7 +23,7 @@ async def open_transaction(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
 @router.callback_query(F.data.startswith('confirm_delete_transaction_'))
-async def confirm_delete_transaction(callback: CallbackQuery, state: FSMContext):
+async def confirm_delete_transaction(callback: CallbackQuery):
     id = callback.data.replace('confirm_delete_transaction_', '')
     transaction = await transaction_repository.find_one_by_id(id)
     await callback.message.edit_text(
@@ -49,7 +38,7 @@ async def confirm_delete_transaction(callback: CallbackQuery, state: FSMContext)
     await callback.answer()
 
 @router.callback_query(F.data.startswith('delete_transaction_'))
-async def confirm_delete_transaction(callback: CallbackQuery, state: FSMContext):
+async def confirm_delete_transaction(callback: CallbackQuery):
     id = callback.data.replace('delete_transaction_', '')
     await transaction_repository.delete_one_by_id(id)
     await callback.message.edit_text(

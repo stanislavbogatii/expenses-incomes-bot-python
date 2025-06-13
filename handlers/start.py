@@ -2,7 +2,7 @@ from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters.command import Command
 from form import Form
-from keyboards import get_main_menu_inline
+from keyboards.keyboards import get_main_menu_inline
 from utils import get_or_create_user
 
 router = Router()

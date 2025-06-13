@@ -6,7 +6,7 @@ from aiogram.filters.command import Command, CommandObject
 from form import Form
 from enums import CategoryType
 from models import UserModel
-from keyboards import get_category_types_inline, get_back_to_category_types_inline, get_category_types_create_inline
+from keyboards.keyboards import get_category_types_inline, get_back_to_category_types_inline, get_category_types_create_inline
 from repositories import UserRepository, TransactionRepository, CategoryRepository
 from utils import get_or_create_user
 

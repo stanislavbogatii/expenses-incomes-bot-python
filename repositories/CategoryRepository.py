@@ -1,4 +1,3 @@
-from db.mongo import db
 import json
 
 class CategoryRepository:

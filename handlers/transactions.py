@@ -1,24 +1,24 @@
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
-from aiogram.filters.command import Command, CommandObject
+from aiogram.filters.command import Command
 from form import Form
-from models import UserModel
-from keyboards import get_main_menu, get_transacion_options_inline, get_back_to_transactions_inline
+from models import UserModel, TransactionModel
+from keyboards.keyboards import get_main_menu, get_transacion_options_inline, get_back_to_transactions_inline
 from repositories import UserRepository, TransactionRepository, CategoryRepository
 from utils import get_or_create_user
 from dateutil.relativedelta import relativedelta
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from enums import CategoryType
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from enums import TransactionType
 
 user_repository = UserRepository()
 transaction_repository = TransactionRepository()
+category_repository = CategoryRepository()
 
 router = Router()
-category_repository = CategoryRepository()
 
 transactions_period_days = {
     "day": relativedelta(days=1),
@@ -31,9 +31,9 @@ transactions_period_days = {
     "custom": None,
 }
 
-
 @router.message(Command(commands=['transactions']))
-async def cmd_get_transactions(message: Message, command: CommandObject, state: FSMContext):
+@router.message(lambda message: message.text.lower() in ['transactions'])
+async def cmd_get_transactions(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
         "Select interval for transactions:",
@@ -41,7 +41,7 @@ async def cmd_get_transactions(message: Message, command: CommandObject, state: 
     )
 
 @router.message(Form.waiting_for_custom_transactions_period)
-async def cmd_waiting_for_income(message: Message, state: FSMContext):
+async def cmd_show_transactions(message: Message, state: FSMContext):
     start_date_str, end_date_str = message.text.split()
     await state.clear()
     username = message.from_user.username
@@ -66,21 +66,12 @@ async def cmd_waiting_for_income(message: Message, state: FSMContext):
         )
         return
     
-    transactions = await transaction_repository.find_all_by_interval(user_id=user.id, start_date=start_date, end_date=end_date)
-
-    lines = ['Transactions:']
-    for transaction in transactions:
-        text = (
-            f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            f"{transaction.type.value}: {transaction.amount:.2f} mdl ({category_repository.get_category_label(transaction.type.value, transaction.category)})"
-        )
-        lines.append(text)
-
-    text = '\n\n'.join(lines)
+    transactions: list[TransactionModel] = await transaction_repository.find_all_by_interval(user_id=user.id, start_date=start_date, end_date=end_date)
+    keyboard = create_transactions_list(transactions)
 
     await message.answer(
-        text,
-        reply_markup=get_back_to_transactions_inline()
+        "Transactions:",
+        reply_markup=keyboard
     )
 
 
@@ -95,33 +86,16 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
         await callback.answer()
         return
     transactions_period = transactions_period_days[period]
-
     id = callback.from_user.id
     username = callback.from_user.username
     user: UserModel = await get_or_create_user(username=username, user_id=id)
-
     now = datetime.now()
-
     if transactions_period is None:
         start_date = datetime.min 
     else:
         start_date = now - transactions_period
     transactions = await transaction_repository.find_all_by_interval(user_id=user.id, start_date=start_date, end_date=now)
-
-    buttons = [
-        [
-            InlineKeyboardButton(text=(
-            f"{transactions[i].type.value} {transactions[i].created_at.strftime('%d.%m.%Y')} {transactions[i].amount:.2f} mdl ({category_repository.get_category_label(transactions[i].type.value, transactions[i].category)})"
-            ), callback_data=f"open_transaction_{transactions[i].id}")
-        ]
-        for i in range(0, len(transactions))
-    ]
-
-    buttons.append([
-        InlineKeyboardButton(text='<< BACK', callback_data='show_transactions')
-    ])
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-
+    keyboard = create_transactions_list(transactions)
     await callback.message.edit_text(
         "Transactions:",
         reply_markup=keyboard
@@ -140,3 +114,32 @@ async def cmd_add_expense(callback: CallbackQuery, state: FSMContext):
         reply_markup=get_transacion_options_inline()
     )
     await callback.answer()
+
+
+@router.callback_query(F.data == 'empty')
+async def cmd_empty(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+
+
+
+
+def create_transactions_list(transactions: list [TransactionModel]) -> InlineKeyboardMarkup:
+    buttons = []
+    prev_day = None
+    for transaction in transactions:
+        day = transaction.created_at.strftime('%d.%m.%Y')
+        if (prev_day != day): 
+            buttons.append([InlineKeyboardButton(text=f"============{day}============", callback_data="empty")])
+        prev_day = day
+        transactoin_emoji = transaction.type.value == TransactionType.INCOME.value and '➕' or '➖'
+        buttons.append([
+            InlineKeyboardButton(text=(
+            f"{transactoin_emoji} {transaction.amount:.2f} mdl     |     {category_repository.get_category_label(transaction.type.value, transaction.category)}"
+            ), callback_data=f"open_transaction_{transaction.id}")
+        ])
+
+    buttons.append([
+        InlineKeyboardButton(text='<< BACK', callback_data='show_transactions'),
+    ])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    return keyboard
