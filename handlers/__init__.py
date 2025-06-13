@@ -7,6 +7,7 @@ from .statistic import router as statistic_router
 from .default import router as default_router
 from .categories import router as categories_router
 from .transaction import router as transaction_router
+from .users import router as users_router
 
 def register_all_handlers(dp: Dispatcher):
     dp.include_router(start_router)
@@ -16,4 +17,5 @@ def register_all_handlers(dp: Dispatcher):
     dp.include_router(statistic_router)
     dp.include_router(categories_router)
     dp.include_router(transaction_router)
+    dp.include_router(users_router)
     dp.include_router(default_router)

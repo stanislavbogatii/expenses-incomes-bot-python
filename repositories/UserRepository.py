@@ -11,5 +11,11 @@ class UserRepository:
             return UserModel(**user)
         return None
     
+    async def find_all(self) -> list[UserModel]:
+        users = []
+        async for user in self.users.find():
+            users.append(UserModel(**user))
+        return users
+    
     async def store(self, user: UserModel) -> UserModel:
         user = await self.users.insert_one(user.dict(by_alias=True))
