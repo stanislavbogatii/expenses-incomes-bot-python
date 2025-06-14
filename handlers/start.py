@@ -10,10 +10,13 @@ router = Router()
 @router.message(Command(commands=['start', 'menu', 'home']))
 @router.message(lambda message: message.text.lower() in ['start', 'menu', 'home', 'cd ~', 'cd /'])
 async def cmd_start(message: types.Message, state: FSMContext):
-    id = message.from_user.id
-    username = message.from_user.username
+    user = message.from_user
+    id = user.id
+    username = user.username
+    if (username == None):
+        username = user.username or f"{user.first_name} {user.last_name or ''}".strip()
+
     await get_or_create_user(username, id)
-    print(username, id)
     await message.answer(
         "Hi, select options:",
         reply_markup=get_main_menu_inline(),
