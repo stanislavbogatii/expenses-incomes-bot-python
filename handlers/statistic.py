@@ -79,48 +79,48 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
     transactions = await transaction_repository.find_all_by_interval(user_id=user.id, start_date=start_date, end_date=now)
     
     
-    lines = ['Transactions:']
-    income_categories = defaultdict(float)
-    expense_categories = defaultdict(float)
+    income_by_currency = defaultdict(lambda: defaultdict(float))
+    expense_by_currency = defaultdict(lambda: defaultdict(float))
 
     for transaction in transactions:
-        text = (
-            f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            f"{transaction.type.value}: {transaction.amount:.2f} {transaction.currency}\n"
-            f"Category: {transaction.category}"
-        )
-        lines.append(text)
-
         if transaction.type == TransactionType.INCOME:
-            income_categories[transaction.category] += transaction.amount
+            income_by_currency[transaction.currency][transaction.category] += transaction.amount
         elif transaction.type == TransactionType.EXPENSE:
-            expense_categories[transaction.category] += transaction.amount
+            expense_by_currency[transaction.currency][transaction.category] += transaction.amount
 
-    text = '\n\n'.join(lines)
 
-    income_sum = sum(income_categories.values())
-    expense_sum = sum(expense_categories.values())
-    profit = income_sum - expense_sum
-
-    income_lines = ['\n\n📈 Income by category: \n']
-    for category, amount in income_categories.items():
-        category_label = category_repository.get_category_label('income', category)
-        income_lines.append(f"• {category_label}: {amount:.2f} {transaction.currency} \n")
-
-    expense_lines = ['\n\n📉 Expense by category: \n']
-    for category, amount in expense_categories.items():
-        category_label = category_repository.get_category_label('expense', category)
-        expense_lines.append(f"• {category_label}: {amount:.2f} {transaction.currency} \n")
-
-    await message.edit_text(
+    text = (
         f"{start_date.strftime('%d.%m.%Y %H:%M')} - {now.strftime('%d.%m.%Y %H:%M')} statistic:\n\n"
-        f"➖ Expense: {expense_sum:.2f} {transaction.currency}\n"
-        f"➕ Income: {income_sum:.2f} {transaction.currency}\n\n"
-        f"📊 Profit: {profit:.2f} {transaction.currency} {'😔' if profit < 0 else '👍'}"
-        + ''.join(income_lines)
-        + ''.join(expense_lines),
-        reply_markup=get_back_to_stats_inline()
     )
+    currencies = set(income_by_currency.keys()) | set(expense_by_currency.keys())
+
+    for currency in currencies:
+        income_categories = income_by_currency.get(currency, {})
+        expense_categories = expense_by_currency.get(currency, {})
+        income_sum = sum(income_categories.values())
+        expense_sum = sum(expense_categories.values())
+        profit = income_sum - expense_sum
+
+        text += (
+            f"\n===========Currency: {currency.upper()}===========\n"
+            f"➖ Expense: {expense_sum:.2f} {currency}\n"
+            f"➕ Income: {income_sum:.2f} {currency}\n"
+            f"📊 Profit: {profit:.2f} {currency} {'😔' if profit < 0 else '👍'}\n"
+        )
+
+        if income_categories:
+            text += '\n📈 Income by category:\n'
+            for category, amount in income_categories.items():
+                label = category_repository.get_category_label('income', category)
+                text += f"• {label}: {amount:.2f} {currency}\n"
+
+        if expense_categories:
+            text += '\n📉 Expense by category:\n'
+            for category, amount in expense_categories.items():
+                label = category_repository.get_category_label('expense', category)
+                text += f"• {label}: {amount:.2f} {currency}\n"
+
+    await message.edit_text(text, reply_markup=get_back_to_stats_inline())
 
 
 @router.message(Form.waiting_for_custom_stats_period)
@@ -151,45 +151,45 @@ async def get_statistic_for_custom_period(message: Message, state: FSMContext):
     
     transactions = await transaction_repository.find_all_by_interval(user_id=user.id, start_date=start_date, end_date=end_date)
 
-    lines = ['Transactions:']
-    income_categories = defaultdict(float)
-    expense_categories = defaultdict(float)
+    income_by_currency = defaultdict(lambda: defaultdict(float))
+    expense_by_currency = defaultdict(lambda: defaultdict(float))
 
     for transaction in transactions:
-        text = (
-            f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            f"{transaction.type.value}: {transaction.amount:.2f} {transaction.currency}\n"
-            f"Category: {transaction.category}"
-        )
-        lines.append(text)
-
         if transaction.type == TransactionType.INCOME:
-            income_categories[transaction.category] += transaction.amount
+            income_by_currency[transaction.currency][transaction.category] += transaction.amount
         elif transaction.type == TransactionType.EXPENSE:
-            expense_categories[transaction.category] += transaction.amount
+            expense_by_currency[transaction.currency][transaction.category] += transaction.amount
 
-    text = '\n\n'.join(lines)
 
-    income_sum = sum(income_categories.values())
-    expense_sum = sum(expense_categories.values())
-    profit = income_sum - expense_sum
-
-    income_lines = ['\n\n📈 Income by category: \n']
-    for category, amount in income_categories.items():
-        category_label = category_repository.get_category_label('income', category)
-        income_lines.append(f"• {category_label}: {amount:.2f} {transaction.currency} \n")
-
-    expense_lines = ['\n\n📉 Expense by category: \n']
-    for category, amount in expense_categories.items():
-        category_label = category_repository.get_category_label('expense', category)
-        expense_lines.append(f"• {category_label}: {amount:.2f} {transaction.currency} \n")
-
-    await message.edit_text(
-        f"{start_date.strftime('%d.%m.%Y %H:%M')} - {end_date.strftime('%d.%m.%Y %H:%M')} statistic:\n\n"
-        f"➖ Expense: {expense_sum:.2f} {transaction.currency}\n"
-        f"➕ Income: {income_sum:.2f} {transaction.currency}\n\n"
-        f"📊 Profit: {profit:.2f} {transaction.currency} {'😔' if profit < 0 else '👍'}"
-        + ''.join(income_lines)
-        + ''.join(expense_lines),
-        reply_markup=get_back_to_stats_inline()
+    text = (
+        f"{start_date.strftime('%d.%m.%Y %H:%M')} - {start_date.strftime('%d.%m.%Y %H:%M')} statistic:\n\n"
     )
+    currencies = set(income_by_currency.keys()) | set(expense_by_currency.keys())
+
+    for currency in currencies:
+        income_categories = income_by_currency.get(currency, {})
+        expense_categories = expense_by_currency.get(currency, {})
+        income_sum = sum(income_categories.values())
+        expense_sum = sum(expense_categories.values())
+        profit = income_sum - expense_sum
+
+        text += (
+            f"\n===========Currency: {currency.upper()}===========\n"
+            f"➖ Expense: {expense_sum:.2f} {currency}\n"
+            f"➕ Income: {income_sum:.2f} {currency}\n"
+            f"📊 Profit: {profit:.2f} {currency} {'😔' if profit < 0 else '👍'}\n"
+        )
+
+        if income_categories:
+            text += '\n📈 Income by category:\n'
+            for category, amount in income_categories.items():
+                label = category_repository.get_category_label('income', category)
+                text += f"• {label}: {amount:.2f} {currency}\n"
+
+        if expense_categories:
+            text += '\n📉 Expense by category:\n'
+            for category, amount in expense_categories.items():
+                label = category_repository.get_category_label('expense', category)
+                text += f"• {label}: {amount:.2f} {currency}\n"
+
+    await message.answer(text, reply_markup=get_back_to_stats_inline())
