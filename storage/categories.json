@@ -23,12 +23,14 @@
   ],
   "expense": [
     { "label": "🍔 Fast Food", "value": "Fast Food" },
+    { "label": "☕️ Coffee", "value": "Coffee"},
     { "label": "🏠 Rent", "value": "Rent" },
     { "label": "🚬 Smoking", "value": "Smoking" },
     { "label": "🛒 Groceries", "value": "Groceries" },
     { "label": "💡 Utilities", "value": "Utilities" },
     { "label": "⛽ Fuel", "value": "Fuel" },
     { "label": "🚗 Car Insurance", "value": "Car Insurance" },
+    { "label": "🚕 Taxi", "value": "Taxi" },
     { "label": "🔧 Car Repair", "value": "Car Repair" },
     { "label": "🚌 Public Transportation", "value": "Public Transportation" },
     { "label": "🍽️ Restaurants", "value": "Restaurants" },
@@ -44,7 +46,8 @@
     { "label": "🧸 Childcare", "value": "Childcare" },
     { "label": "🎁 Gifts", "value": "Gifts" },
     { "label": "🐶 Pet Expenses", "value": "Pet Expenses" },
-    { "label": "❤️ Charity / Donations", "value": "Charity / Donations" },
+    { "label": "❤️  Charity / Donations", "value": "Charity / Donations" },
+    { "label": "💼 Work / Business Expenses", "value": "Work / Business Expenses" },
     { "label": "👨‍👩‍👧‍👦 Family", "value": "Family" }
   ]
 }

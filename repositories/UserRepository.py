@@ -6,6 +6,12 @@ class UserRepository:
     def __init__(self) -> None:
         self.users = db['users']
 
+    async def find_one_by_user_id(self, user_id: int) -> UserModel | None:
+        user = await self.users.find_one({"user_id": user_id})
+        if user:
+            return UserModel(**user)
+        return None
+    
     async def find_one_by_username(self, username: str) -> UserModel | None:
         user = await self.users.find_one({"username": username})
         if user:

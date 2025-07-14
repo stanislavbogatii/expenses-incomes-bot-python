@@ -12,6 +12,7 @@ def get_main_menu_inline()->InlineKeyboardMarkup:
 	        ],
             [InlineKeyboardButton(text='Show statistic', callback_data='show_stats')],
             [InlineKeyboardButton(text='Show transactoins', callback_data='show_transactions')],
+            [InlineKeyboardButton(text='Show currencies', callback_data='currencies')],
             [InlineKeyboardButton(text='Support', callback_data='support')],
         ]
     )

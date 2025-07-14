@@ -9,6 +9,7 @@ from .categories import router as categories_router
 from .transaction import router as transaction_router
 from .users import router as users_router
 from .support import router as support_router
+from .currencies import router as currencies_router
 
 def register_all_handlers(dp: Dispatcher):
     dp.include_router(start_router)
@@ -20,4 +21,5 @@ def register_all_handlers(dp: Dispatcher):
     dp.include_router(transaction_router)
     dp.include_router(users_router)
     dp.include_router(support_router)
+    dp.include_router(currencies_router)
     dp.include_router(default_router)
