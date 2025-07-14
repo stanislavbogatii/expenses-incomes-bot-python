@@ -88,7 +88,6 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
         elif transaction.type == TransactionType.EXPENSE:
             expense_by_currency[transaction.currency][transaction.category] += transaction.amount
 
-
     text = (
         f"{start_date.strftime('%d.%m.%Y %H:%M')} - {now.strftime('%d.%m.%Y %H:%M')} statistic:\n\n"
     )
