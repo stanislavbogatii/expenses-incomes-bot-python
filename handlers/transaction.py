@@ -12,7 +12,7 @@ async def open_transaction(callback: CallbackQuery):
     id = callback.data.replace('open_transaction_', '')
     transaction = await transaction_repository.find_one_by_id(id)
     await callback.message.edit_text(
-        f"{transaction.type.value} {transaction.created_at.strftime('%d.%m.%Y')} {transaction.amount:.2f} mdl ({transaction.category})",
+        f"{transaction.type.value} {transaction.created_at.strftime('%d.%m.%Y')} {transaction.amount:.2f} {transaction.currency} ({transaction.category})",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
                 [InlineKeyboardButton(text='DELETE', callback_data='confirm_delete_transaction_'+id)],
@@ -27,7 +27,7 @@ async def confirm_delete_transaction(callback: CallbackQuery):
     id = callback.data.replace('confirm_delete_transaction_', '')
     transaction = await transaction_repository.find_one_by_id(id)
     await callback.message.edit_text(
-        f"Are you sure you want to delete {transaction.type.value} {transaction.created_at.strftime('%d.%m.%Y')} {transaction.amount:.2f} mdl ({transaction.category})?",
+        f"Are you sure you want to delete {transaction.type.value} {transaction.created_at.strftime('%d.%m.%Y')} {transaction.amount:.2f} {transaction.currency} ({transaction.category})?",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
                 [InlineKeyboardButton(text='YES', callback_data='delete_transaction_'+id)],

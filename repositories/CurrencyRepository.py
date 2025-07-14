@@ -13,6 +13,12 @@ class CurrencyRepository:
             return CurrencyModel(**currency)
         return None
     
+    async def find_one_by_code(self, code: str) -> CurrencyModel | None:
+        currency = await self.currencies.find_one({"code": code})
+        if currency:
+            return CurrencyModel(**currency)
+        return None
+    
     async def delete_one_by_id(self, id: str):
         await self.currencies.delete_one({"_id": PyObjectId(id)})
         return None

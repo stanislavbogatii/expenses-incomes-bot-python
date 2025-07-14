@@ -50,6 +50,15 @@ def get_back_to_menu_inline()->InlineKeyboardMarkup:
     )
     return back_to_menu_inline
 
+def get_catch_error_inline()->InlineKeyboardMarkup:
+    back_to_menu_inline = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text='<< MENU', callback_data='menu')],
+            [InlineKeyboardButton(text='Support', callback_data='support')],
+        ]
+    )
+    return back_to_menu_inline
+
 def get_statistic_options_inline()->InlineKeyboardMarkup:
     statistic_options_inline = InlineKeyboardMarkup(
         inline_keyboard=[

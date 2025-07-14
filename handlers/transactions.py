@@ -134,7 +134,7 @@ def create_transactions_list(transactions: list [TransactionModel]) -> InlineKey
         transactoin_emoji = transaction.type.value == TransactionType.INCOME.value and '🟢' or '🔴'
         buttons.append([
             InlineKeyboardButton(text=(
-            f"{transactoin_emoji} {transaction.amount:.2f} mdl     |     {category_repository.get_category_label(transaction.type.value, transaction.category)}"
+            f"{transactoin_emoji} {transaction.amount:.2f} {transaction.currency}     |     {category_repository.get_category_label(transaction.type.value, transaction.category)}"
             ), callback_data=f"open_transaction_{transaction.id}")
         ])
 

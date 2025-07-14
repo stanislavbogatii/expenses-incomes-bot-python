@@ -86,7 +86,7 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
     for transaction in transactions:
         text = (
             f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            f"{transaction.type.value}: {transaction.amount:.2f} mdl\n"
+            f"{transaction.type.value}: {transaction.amount:.2f} {transaction.currency}\n"
             f"Category: {transaction.category}"
         )
         lines.append(text)
@@ -105,18 +105,18 @@ async def process_period(callback: CallbackQuery, state: FSMContext):
     income_lines = ['\n\n📈 Income by category: \n']
     for category, amount in income_categories.items():
         category_label = category_repository.get_category_label('income', category)
-        income_lines.append(f"• {category_label}: {amount:.2f} mdl \n")
+        income_lines.append(f"• {category_label}: {amount:.2f} {transaction.currency} \n")
 
     expense_lines = ['\n\n📉 Expense by category: \n']
     for category, amount in expense_categories.items():
         category_label = category_repository.get_category_label('expense', category)
-        expense_lines.append(f"• {category_label}: {amount:.2f} mdl \n")
+        expense_lines.append(f"• {category_label}: {amount:.2f} {transaction.currency} \n")
 
     await message.edit_text(
         f"{start_date.strftime('%d.%m.%Y %H:%M')} - {now.strftime('%d.%m.%Y %H:%M')} statistic:\n\n"
-        f"➖ Expense: {expense_sum:.2f} mdl\n"
-        f"➕ Income: {income_sum:.2f} mdl\n\n"
-        f"📊 Profit: {profit:.2f} mdl {'😔' if profit < 0 else '👍'}"
+        f"➖ Expense: {expense_sum:.2f} {transaction.currency}\n"
+        f"➕ Income: {income_sum:.2f} {transaction.currency}\n\n"
+        f"📊 Profit: {profit:.2f} {transaction.currency} {'😔' if profit < 0 else '👍'}"
         + ''.join(income_lines)
         + ''.join(expense_lines),
         reply_markup=get_back_to_stats_inline()
@@ -158,7 +158,7 @@ async def get_statistic_for_custom_period(message: Message, state: FSMContext):
     for transaction in transactions:
         text = (
             f"{transaction.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            f"{transaction.type.value}: {transaction.amount:.2f} mdl\n"
+            f"{transaction.type.value}: {transaction.amount:.2f} {transaction.currency}\n"
             f"Category: {transaction.category}"
         )
         lines.append(text)
@@ -177,18 +177,18 @@ async def get_statistic_for_custom_period(message: Message, state: FSMContext):
     income_lines = ['\n\n📈 Income by category: \n']
     for category, amount in income_categories.items():
         category_label = category_repository.get_category_label('income', category)
-        income_lines.append(f"• {category_label}: {amount:.2f} mdl \n")
+        income_lines.append(f"• {category_label}: {amount:.2f} {transaction.currency} \n")
 
     expense_lines = ['\n\n📉 Expense by category: \n']
     for category, amount in expense_categories.items():
         category_label = category_repository.get_category_label('expense', category)
-        expense_lines.append(f"• {category_label}: {amount:.2f} mdl \n")
+        expense_lines.append(f"• {category_label}: {amount:.2f} {transaction.currency} \n")
 
     await message.edit_text(
         f"{start_date.strftime('%d.%m.%Y %H:%M')} - {end_date.strftime('%d.%m.%Y %H:%M')} statistic:\n\n"
-        f"➖ Expense: {expense_sum:.2f} mdl\n"
-        f"➕ Income: {income_sum:.2f} mdl\n\n"
-        f"📊 Profit: {profit:.2f} mdl {'😔' if profit < 0 else '👍'}"
+        f"➖ Expense: {expense_sum:.2f} {transaction.currency}\n"
+        f"➕ Income: {income_sum:.2f} {transaction.currency}\n\n"
+        f"📊 Profit: {profit:.2f} {transaction.currency} {'😔' if profit < 0 else '👍'}"
         + ''.join(income_lines)
         + ''.join(expense_lines),
         reply_markup=get_back_to_stats_inline()
