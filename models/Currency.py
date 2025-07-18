@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 from .PyObjectId import PyObjectId
 from bson import ObjectId
@@ -11,6 +11,7 @@ class CurrencyModel(BaseModel):
     label: str
     code: str
     symbol: str
+    rates: List[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     

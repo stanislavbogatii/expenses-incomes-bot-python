@@ -2,6 +2,7 @@
   "income": [
     { "label": "💼 Salary", "value": "Salary" },
     { "label": "🎉 Bonus", "value": "Bonus" },
+    { "label": "💳 Cashback", "value": "Cashback" },
     { "label": "🧑‍💻 Freelance / Consulting", "value": "Freelance / Consulting" },
     { "label": "🏦 Interest Income", "value": "Interest Income" },
     { "label": "💸 Dividends", "value": "Dividends" },
